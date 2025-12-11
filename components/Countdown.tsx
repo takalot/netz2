@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Timer, ArrowRight, Clock } from 'lucide-react';
+import { ArrowLeft, Clock } from 'lucide-react';
 import { FormattedZman } from '../types';
 
 interface CountdownProps {
@@ -64,8 +64,8 @@ const Countdown: React.FC<CountdownProps> = ({ zmanim }) => {
 
     if (!nextZman) {
         return (
-            <div className="flex items-center justify-center p-4 rounded-xl border border-[#1a4c43]/10 bg-[#fff]/30 backdrop-blur-sm text-[#8c8279] text-sm font-sans uppercase tracking-widest">
-                <Clock className="w-4 h-4 mr-2" />
+            <div className="flex items-center justify-center p-6 rounded-xl border border-[#1a4c43]/10 bg-[#fff]/30 backdrop-blur-sm text-[#8c8279] text-lg font-sans uppercase tracking-widest">
+                <Clock className="w-6 h-6 ml-3" /> {/* Margin Left for RTL */}
                 Aucun Zman à venir aujourd'hui
             </div>
         );
@@ -74,41 +74,42 @@ const Countdown: React.FC<CountdownProps> = ({ zmanim }) => {
     const isMajor = nextZman.isHighlight;
 
     return (
-        <div className={`relative overflow-hidden rounded-2xl transition-all duration-500
+        <div className={`relative overflow-hidden rounded-3xl transition-all duration-500
             ${isMajor 
                 ? 'bg-amber-500/10 border-2 border-amber-500/30 shadow-lg shadow-amber-900/5' 
                 : 'bg-[#1a4c43]/5 border border-[#1a4c43]/10 shadow-sm'
-            } backdrop-blur-md p-4 md:p-6 w-full`}>
+            } backdrop-blur-md p-6 md:p-8 w-full`}>
             
-            <div className="flex flex-row items-center justify-between gap-6">
+            <div className="flex flex-row items-center justify-between gap-8">
                 
-                {/* Left Side: Label */}
+                {/* Right Side (First in RTL): Label */}
                 <div className="flex flex-col items-start min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs md:text-sm font-bold uppercase tracking-widest ${isMajor ? 'text-amber-700' : 'text-[#8c8279]'}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-sm md:text-base font-bold uppercase tracking-widest ${isMajor ? 'text-amber-700' : 'text-[#8c8279]'}`}>
                             Prochain Zman
                         </span>
-                        {isMajor && <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>}
+                        {isMajor && <span className="flex h-3 w-3 rounded-full bg-amber-500 animate-pulse"></span>}
                     </div>
                     
-                    <h3 className="text-4xl md:text-5xl font-serif-hebrew font-bold text-[#4a3b32] leading-tight truncate w-full">
+                    <h3 className="text-5xl md:text-7xl font-serif-hebrew font-bold text-[#4a3b32] leading-tight truncate w-full">
                         {nextZman.hebrewLabel}
                     </h3>
                     
-                    <div className="text-sm md:text-base text-[#1a4c43]/80 font-medium flex items-center gap-2 mt-1">
+                    <div className="text-xl md:text-2xl text-[#1a4c43]/80 font-medium flex items-center gap-3 mt-2">
                         <span>{nextZman.label}</span>
-                        <ArrowRight className="w-3 h-3 opacity-50" />
+                        {/* Changed to ArrowLeft for RTL logic (Next -> Time) */}
+                        <ArrowLeft className="w-5 h-5 opacity-50" />
                         <span className="font-bold font-sans">{nextZman.time}</span>
                     </div>
                 </div>
 
-                {/* Right Side: Timer */}
-                <div className="text-right shrink-0">
-                    <div className={`text-5xl md:text-7xl font-sans font-bold tabular-nums tracking-tighter leading-none
+                {/* Left Side (Second in RTL): Timer */}
+                <div className="text-left shrink-0">
+                    <div className={`text-6xl md:text-8xl font-sans font-bold tabular-nums tracking-tighter leading-none
                         ${isMajor ? 'text-[#a63c06]' : 'text-[#1a4c43]'}`}>
                         {timeLeft}
                     </div>
-                    <div className={`text-xs text-right mt-2 font-medium uppercase tracking-wider opacity-60
+                    <div className={`text-sm md:text-base text-left mt-2 font-medium uppercase tracking-wider opacity-60
                         ${isMajor ? 'text-[#a63c06]' : 'text-[#1a4c43]'}`}>
                         Temps Restant
                     </div>

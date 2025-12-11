@@ -102,7 +102,7 @@ export const fetchZmanimData = async (config: ZmanimConfig): Promise<ZmanimRespo
 
         return data as ZmanimResponse;
     } catch (error) {
-        console.error("Failed to fetch Zmanim data", error);
+        // Suppress console error for cleaner UX when falling back to demo mode
         throw error;
     }
 };

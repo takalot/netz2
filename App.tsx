@@ -48,16 +48,17 @@ function App() {
           setData(result);
         })
         .catch((err) => {
-          console.error(err);
           const errMsg = err.message || "Erreur chargement";
           
-          // If Auth error, switch to demo mode silently or with minimal UI
-          if (errMsg.includes("NotAuthorized")) {
+          // If Auth error (NotAuthorizedSeeApiDashboardForDetails), switch to demo mode silently
+          if (errMsg.includes("NotAuthorized") || errMsg.includes("Forbidden") || errMsg.includes("401")) {
+              // Do not set error state, just switch to demo
               setIsDemoMode(true);
               setData(getMockZmanimData());
           } else {
+              // For other errors, log them but still fallback to demo
+              console.error(err);
               setError(errMsg);
-              // Still fallback to demo data so the app isn't blank
               setData(getMockZmanimData());
               setIsDemoMode(true);
           }
@@ -185,42 +186,42 @@ function App() {
       {/* Demo Mode Indicator */}
       {isDemoMode && (
           <div className="absolute top-4 right-4 bg-amber-100/80 text-amber-800 px-3 py-1 rounded-full text-xs font-semibold z-50 flex items-center gap-1 border border-amber-200">
-              <Info size={12} /> Mode Démo
+              <Info size={12} /> Mode Démo (Clé API invalide)
           </div>
       )}
 
       {/* TOP SECTION */}
       <header className="flex justify-between items-start w-full relative z-20">
         
-        {/* Top Left: Daf Yomi */}
-        <div className="text-left">
-           <div className="flex items-baseline gap-2">
-                <h2 className="text-3xl md:text-4xl font-serif-hebrew font-bold text-[#4a3b32]">
+        {/* Top Right (Visual in RTL) / First Child: Daf Yomi */}
+        <div className="text-right">
+           <div className="flex items-baseline gap-3">
+                <h2 className="text-4xl md:text-5xl font-serif-hebrew font-bold text-[#4a3b32]">
                     הדף היומי
                 </h2>
-                <span className="text-2xl md:text-3xl font-serif-hebrew text-[#7a2e1d] font-bold">
+                <span className="text-3xl md:text-4xl font-serif-hebrew text-[#7a2e1d] font-bold">
                     {data?.Time?.DafYomi || "זבחים פ״ח"}
                 </span>
            </div>
-           <div className="text-sm text-[#8c8279] mt-1 font-sans opacity-60 uppercase tracking-widest">
+           <div className="text-base text-[#8c8279] mt-2 font-sans opacity-60 uppercase tracking-widest">
                 {data?.Place?.Name}
            </div>
         </div>
 
-        {/* Top Right: Date & Parsha */}
-        <div className="text-right">
+        {/* Top Left (Visual in RTL) / Second Child: Date & Parsha */}
+        <div className="text-left">
             {/* Hebrew Date */}
-            <h1 className="text-4xl md:text-6xl font-serif-hebrew font-bold text-[#4a3b32] mb-1">
+            <h1 className="text-5xl md:text-7xl font-serif-hebrew font-bold text-[#4a3b32] mb-2">
                 {data?.Time?.DateJewish || "כ״א בְּכִסְלֵו תשפ״ו"}
             </h1>
             
             {/* French Date */}
-            <div className="text-xl md:text-2xl font-bold text-black mb-2 tracking-wide">
+            <div className="text-2xl md:text-3xl font-bold text-black mb-3 tracking-wide">
                 {getFrenchDate(data?.Time?.Date)}
             </div>
 
-            {/* Parsha Header - kept as redundancy or for emphasis */}
-            <div className="flex items-center justify-end gap-2 text-2xl md:text-4xl opacity-80">
+            {/* Parsha Header */}
+            <div className="flex items-center justify-end gap-3 text-3xl md:text-5xl opacity-80">
                  <span className="font-serif-hebrew text-black">פרשת השבוע</span>
                  <span className="font-serif-hebrew font-bold text-[#7a2e1d]">{data?.Time?.Parsha || "וַיֵּשֶׁב"}</span>
             </div>
@@ -231,15 +232,15 @@ function App() {
       <main className="flex-grow flex flex-col items-center justify-center relative z-20 w-full">
         <RealTimeClock />
         
-        <div className="w-full max-w-3xl mt-6 md:mt-10 px-4">
+        <div className="w-full max-w-4xl mt-8 md:mt-12 px-4">
              <Countdown zmanim={zmanimList} />
         </div>
       </main>
 
       {/* BOTTOM SECTION: ZMANIM GRID */}
-      <footer className="w-full relative z-20 mt-4">
+      <footer className="w-full relative z-20 mt-6">
         {/* Adjusted grid to handle 10 items: 2 rows of 5 on md/lg, or 1 row of 10 on xl if very wide */}
-        <div className="grid grid-cols-3 md:grid-cols-5 xl:grid-cols-10 gap-2">
+        <div className="grid grid-cols-3 md:grid-cols-5 xl:grid-cols-10 gap-3">
              {zmanimList.map((zman, idx) => (
                  <ZmanCard key={idx} zman={zman} />
              ))}

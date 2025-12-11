@@ -13,15 +13,16 @@ const RealTimeClock: React.FC = () => {
     const seconds = time.getSeconds().toString().padStart(2, '0');
 
     return (
-        <div className="relative z-10 flex items-baseline font-bold tracking-tighter leading-none" style={{ fontFamily: 'Inter, sans-serif' }}>
+        // dir="ltr" is crucial here to keep HH:MM:SS format correct even when app is RTL
+        <div dir="ltr" className="relative z-10 flex items-baseline font-bold tracking-tighter leading-none" style={{ fontFamily: 'Tahoma, sans-serif' }}>
             {/* Hours and Minutes - Black */}
-            <span className="text-[12rem] md:text-[16rem] text-black drop-shadow-sm">
+            <span className="text-[13rem] md:text-[18rem] text-black drop-shadow-sm">
                 {hours}:{minutes}
             </span>
             
             {/* Colon and Seconds - Red */}
-            <span className="text-[6rem] md:text-[8rem] text-[#ff0000] ml-2 mb-8 md:mb-12 flex items-center">
-                <span className="mr-1">:</span>{seconds}
+            <span className="text-[7rem] md:text-[10rem] text-[#ff0000] ml-4 mb-10 md:mb-16 flex items-center">
+                <span className="mr-2">:</span>{seconds}
             </span>
         </div>
     );
