@@ -29,8 +29,12 @@
   }
 }
 </script>
+<!-- Babel pour compiler le TSX en direct -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
   <body class="bg-[#f2f0e4] text-[#2c2c2c] antialiased overflow-hidden">
     <div id="root"></div>
+    <!-- Script principal avec type babel et extensions explicites -->
+    <script type="text/babel" data-type="module" src="./index.tsx"></script>
   </body>
 </html>

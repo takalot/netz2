@@ -1,4 +1,4 @@
-import { ZmanimConfig, ZmanimResponse } from '../types';
+import { ZmanimConfig, ZmanimResponse } from '../types.ts';
 
 const BASE_URL = "https://api.myzmanim.com/engine1.json.aspx";
 

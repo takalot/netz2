@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, Loader2, AlertCircle, Info } from 'lucide-react';
-import { ZmanimConfig, ZmanimResponse, FormattedZman } from './types';
-import { fetchZmanimData, getMockZmanimData, formatTimeDisplay, addMinutesToTime } from './services/api';
-import SettingsModal from './components/SettingsModal';
-import RealTimeClock from './components/RealTimeClock';
-import AnalogBackground from './components/AnalogBackground';
-import ZmanCard from './components/ZmanCard';
-import Countdown from './components/Countdown';
+import { ZmanimConfig, ZmanimResponse, FormattedZman } from './types.ts';
+import { fetchZmanimData, getMockZmanimData, formatTimeDisplay, addMinutesToTime } from './services/api.ts';
+import SettingsModal from './components/SettingsModal.tsx';
+import RealTimeClock from './components/RealTimeClock.tsx';
+import AnalogBackground from './components/AnalogBackground.tsx';
+import ZmanCard from './components/ZmanCard.tsx';
+import Countdown from './components/Countdown.tsx';
 
 const STORAGE_KEY = 'netztracker_config';
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock } from 'lucide-react';
-import { FormattedZman } from '../types';
+import { FormattedZman } from '../types.ts';
 
 interface CountdownProps {
     zmanim: FormattedZman[];

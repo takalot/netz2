@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sunrise, Sunset, Moon, Sun, BookOpen, Clock, Star, Scroll } from 'lucide-react';
-import { FormattedZman } from '../types';
+import { FormattedZman } from '../types.ts';
 
 interface ZmanCardProps {
     zman: FormattedZman;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ZmanimConfig } from '../types';
+import { ZmanimConfig } from '../types.ts';
 import { X, Save, AlertCircle, MapPin } from 'lucide-react';
 
 interface SettingsModalProps {
