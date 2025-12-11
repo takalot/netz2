@@ -84,8 +84,8 @@
 
 <script>
     // CONFIG (change si tu veux une autre ville)
-    const LAT = "31.801447";    // Ashdod par défaut
-    const LNG = "34.643497";
+    const LAT = "31.7946859557658";    // Ashdod par défaut
+    const LNG = "35.21589133333333";
     const APIKEY  = "94c8af54b8c190573f2dc0fed60bd2d1fd5e80ddd559b6a87f60fd2b1350864f179464977a084579";
     const APIUSER = "0001583267";
 
@@ -105,12 +105,13 @@
         { key: "Night72",         hebrew: "צאת הכוכבים" }
     ];
 
-    function formatTime(t) { return t ? t.substring(0,5) : "--:--"; }
+    function formatTime(t) { return t ? t.substring(0,5); }
 
-    function timeToSeconds = t => {
+    // Ligne corrigée ici
+    const timeToSeconds = (t) => {
         if (!t) return -1;
-        const [h,m,s] = t.split(':').map(Number);
-        return h*3600 + m*60 + (s||0);
+        const [h, m, s = 0] = t.split(':').map(Number);
+        return h * 3600 + m * 60 + s;
     };
 
     function getNextZman() {
@@ -119,6 +120,7 @@
         let best = null, minDiff = Infinity;
         zmanim.forEach(z => {
             const zSec = timeToSeconds(z.time);
+            if (zSec === -1) return;
             let diff = zSec - nowSec;
             if (diff < 0) diff += 86400;
             if (diff < minDiff) { minDiff = diff; best = { ...z, diff }; }
@@ -133,7 +135,6 @@
         if (!next || next.diff >= 86400) {
             el.textContent = "00:00:00";
             name.textContent = "כל הזמנים עברו";
-            return;
         } else {
             const h = Math.floor(next.diff / 3600);
             const m = Math.floor((next.diff % 3600) / 60);
@@ -172,12 +173,10 @@
         setInterval(updateCountdown, 1000);
     }
 
-    // PROXY CORS (fonctionne à 100% même en local)
+    // PROXY CORS (fonctionne même en local)
     async function loadZmanim() {
         const today = new Date().toISOString().slice(0,10).replace(/-/g, '/');
-
         const directUrl = `https://www.myzmanim.com/api/zmanim.aspx?coding=JS&language=he&latitude=${LAT}&longitude=${LNG}&inputdate=${today}&key=${APIKEY}&user=${APIUSER}`;
-
         const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(directUrl);
 
         try {
@@ -185,7 +184,7 @@
             const data = await r.json();
             displayZmanim(data);
         } catch (e) {
-            console.log("Proxy échoué → mode démo");
+            console.log("API inaccessible → mode démo");
             displayZmanim(getMockData());
         }
     }
