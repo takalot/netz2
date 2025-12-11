@@ -1,0 +1,5 @@
+{
+  "name": "NetzTracker",
+  "description": "Une application élégante pour afficher les horaires de Zmanim et le Netz (lever du soleil) en utilisant l'API MyZmanim.",
+  "requestFramePermissions": []
+}
