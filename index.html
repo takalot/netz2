@@ -1,225 +1,32 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>זמנים - NetzTracker</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Tahoma', Arial, sans-serif !important;
-            background: linear-gradient(135deg, #f9f1e0 0%, #e8dcc4 100%);
-            min-height: 100vh;
-            color: #2c1810;
-            padding: 20px 10px;
-        }
-        .container { max-width: 1300px; margin: 0 auto; }
-        .top-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            font-size: 1.6em;
-            font-weight: bold;
-            color: #8b4513;
-        }
-        .header { text-align: center; margin-bottom: 30px; }
-        .main-title { font-size: 3.8em; font-weight: bold; color: #8b4513; text-shadow: 3px 3px 8px rgba(0,0,0,0.2); }
-        .location { font-size: 2.2em; margin-top: 12px; color: #5d4037; }
-
-        .central-countdown {
-            text-align: center;
-            margin: 50px auto;
-            padding: 40px;
-            background: rgba(255,255,255,0.95);
-            border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-            max-width: 900px;
-            border: 4px solid #ff9800;
-        }
-        .next-label { font-size: 2.3em; color: #8b4513; margin-bottom: 20px; }
-        .countdown-big { font-size: 7.5em; font-weight: bold; color: #d32f2f; font-family: Tahoma, monospace; letter-spacing: 10px; }
-        .next-name { font-size: 3em; margin-top: 25px; color: #00695c; font-weight: bold; }
-
-        .zmanim-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 22px;
-            margin-top: 40px;
-        }
-        .zman-card {
-            background: rgba(255,255,255,0.97);
-            padding: 25px;
-            border-radius: 18px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            text-align: center;
-        }
-        .zman-card.highlight { border: 4px solid #ff6f00; background: #fff3e0; }
-        .zman-hebrew { font-size: 1.9em; font-weight: bold; color: #5d4037; }
-        .zman-time { font-size: 3.2em; color: #00695c; font-family: Tahoma, monospace; margin: 12px 0; }
-
-        .loading { text-align: center; font-size: 3em; padding: 120px; color: #8b4513; }
-        @media (max-width: 900px) {
-            .countdown-big { font-size: 5.5em; }
-            .main-title { font-size: 3em; }
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="top-info">
-        <div>פרשת <span id="parachaName">טוען...</span></div>
-        <div>דף יומי: <span id="dafName">טוען...</span></div>
-    </div>
-
-    <div class="header">
-        <h1 class="main-title" id="locationName">טוען...</h1>
-        <div class="location" id="dateDisplay">טוען...</div>
-    </div>
-
-    <div id="content">
-        <div class="loading">טוען זמנים...</div>
-    </div>
-</div>
-
-<script>
-    // CONFIG (change si tu veux une autre ville)
-    const LAT = "31.7946859557658";    // Ashdod par défaut
-    const LNG = "35.21589133333333";
-    const APIKEY  = "94c8af54b8c190573f2dc0fed60bd2d1fd5e80ddd559b6a87f60fd2b1350864f179464977a084579";
-    const APIUSER = "0001583267";
-
-    let zmanim = [];
-
-    const zmanimConfig = [
-        { key: "Dawn72",          hebrew: "עלות השחר" },
-        { key: "TalissMishyakir", hebrew: "משיכיר" },
-        { key: "SunriseDefault",  hebrew: "נץ החמה",         highlight: true },
-        { key: "ShemaGra",        hebrew: "סוזק״ש" },
-        { key: "TefillaGra",      hebrew: "סוזת״ג" },
-        { key: "Chatzos",         hebrew: "חצות" },
-        { key: "MinchaGedola",    hebrew: "מנחה גדולה" },
-        { key: "MinchaKetana",    hebrew: "מנחה קטנה" },
-        { key: "PlagHamincha",    hebrew: "פלג המנחה" },
-        { key: "SunsetDefault",   hebrew: "שקיעה",           highlight: true },
-        { key: "Night72",         hebrew: "צאת הכוכבים" }
-    ];
-
-    function formatTime(t) { return t ? t.substring(0,5); }
-
-    // Ligne corrigée ici
-    const timeToSeconds = (t) => {
-        if (!t) return -1;
-        const [h, m, s = 0] = t.split(':').map(Number);
-        return h * 3600 + m * 60 + s;
-    };
-
-    function getNextZman() {
-        const now = new Date();
-        const nowSec = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
-        let best = null, minDiff = Infinity;
-        zmanim.forEach(z => {
-            const zSec = timeToSeconds(z.time);
-            if (zSec === -1) return;
-            let diff = zSec - nowSec;
-            if (diff < 0) diff += 86400;
-            if (diff < minDiff) { minDiff = diff; best = { ...z, diff }; }
-        });
-        return best;
-    }
-
-    function updateCountdown() {
-        const next = getNextZman();
-        const el = document.getElementById("centralTimer");
-        const name = document.getElementById("nextZmanName");
-        if (!next || next.diff >= 86400) {
-            el.textContent = "00:00:00";
-            name.textContent = "כל הזמנים עברו";
-        } else {
-            const h = Math.floor(next.diff / 3600);
-            const m = Math.floor((next.diff % 3600) / 60);
-            const s = next.diff % 60;
-            el.textContent = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            name.textContent = next.hebrew;
-        }
-    }
-
-    function displayZmanim(data) {
-        document.getElementById("locationName").textContent = data.Place?.Name || "ישראל";
-        document.getElementById("dateDisplay").textContent = `${data.Time?.Weekday || ""}, ${data.Time?.DateJewish || ""}`;
-
-        zmanim = zmanimConfig
-            .map(c => ({ ...c, time: data.Zman[c.key] || null }))
-            .filter(z => z.time);
-
-        let html = `
-            <div class="central-countdown">
-                <div class="next-label">הזמן הבא: <span id="nextZmanName">טוען...</span></div>
-                <div class="countdown-big" id="centralTimer">00:00:00</div>
-            </div>
-            <div class="zmanim-grid">`;
-
-        zmanim.forEach(z => {
-            html += `
-                <div class="zman-card ${z.highlight ? 'highlight' : ''}">
-                    <div class="zman-hebrew">${z.hebrew}</div>
-                    <div class="zman-time">${formatTime(z.time)}</div>
-                </div>`;
-        });
-
-        html += `</div>`;
-        document.getElementById("content").innerHTML = html;
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-    }
-
-    // PROXY CORS (fonctionne même en local)
-    async function loadZmanim() {
-        const today = new Date().toISOString().slice(0,10).replace(/-/g, '/');
-        const directUrl = `https://www.myzmanim.com/api/zmanim.aspx?coding=JS&language=he&latitude=${LAT}&longitude=${LNG}&inputdate=${today}&key=${APIKEY}&user=${APIUSER}`;
-        const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(directUrl);
-
-        try {
-            const r = await fetch(proxyUrl);
-            const data = await r.json();
-            displayZmanim(data);
-        } catch (e) {
-            console.log("API inaccessible → mode démo");
-            displayZmanim(getMockData());
-        }
-    }
-
-    function getMockData() {
-        return {
-            Place: { Name: "אשדוד" },
-            Time: { Weekday: "חמישי", DateJewish: "י״א כסלו תשפ״ו" },
-            Zman: {
-                Dawn72: "05:12:00", TalissMishyakir: "05:42:00", SunriseDefault: "06:34:00",
-                ShemaGra: "09:12:00", TefillaGra: "10:05:00", Chatzos: "11:42:00",
-                MinchaGedola: "12:12:00", MinchaKetana: "15:38:00", PlagHamincha: "16:55:00",
-                SunsetDefault: "16:38:00", Night72: "17:56:00"
-            }
-        };
-    }
-
-    // Paracha + Daf Yomi
-    async function loadJewishInfo() {
-        const today = new Date().toISOString().slice(0,10);
-        try {
-            const r = await fetch(`https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=on&nx=on&year=now&month=x&ss=on&mf=on&c=on&geo=none&M=on&s=on&lg=h&date=${today}`);
-            const d = await r.json();
-            const par = d.items.find(i => i.category==="parashat")?.titlehe.replace("פרשת ","") || "—";
-            const daf = d.items.find(i => i.category==="dafyomi")?.titlehe || "—";
-            document.getElementById("parachaName").textContent = par;
-            document.getElementById("dafName").textContent = daf;
-        } catch(e) {
-            document.getElementById("parachaName").textContent = "ויצא";
-            document.getElementById("dafName").textContent = "זבחים נ״ו";
-        }
-    }
-
-    loadJewishInfo();
-    loadZmanim();
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zmanim Countdown</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              tahoma: ['Tahoma', 'Verdana', 'sans-serif'],
+            },
+          },
+        },
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3"
+  }
+}
 </script>
-</body>
+</head>
+  <body class="bg-slate-900 text-white overflow-hidden h-screen w-screen">
+    <div id="root"></div>
+  </body>
 </html>
